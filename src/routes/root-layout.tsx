@@ -52,7 +52,7 @@ export function RootLayout() {
             </div>
           ) : cloudEnabled ? (
             <NavLink to="/login" className="underline hover:text-neutral-100">
-              Sign in to sync
+              Sign in
             </NavLink>
           ) : (
             <span>Guest mode (data stays on this device)</span>

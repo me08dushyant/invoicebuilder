@@ -14,7 +14,7 @@ interface AuthContextValue {
   session: Session | null
   loading: boolean
   cloudEnabled: boolean
-  signInWithEmail: (email: string) => Promise<{ error: string | null }>
+  signInWithGitHub: () => Promise<{ error: string | null }>
   signOut: () => Promise<void>
 }
 
@@ -48,21 +48,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         })
     }
 
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setLoading(false)
-      maybeMigrate(data.session)
-    })
+    // supabase-js always waits for its internal initialization — which
+    // includes exchanging any magic-link tokens present in the URL — before
+    // firing the first onAuthStateChange event. Ending `loading` here
+    // (instead of from a separate getSession() call, which doesn't wait for
+    // that exchange) means we never render the signed-out UI for a moment
+    // before flipping to signed-in right after a magic-link click.
     const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession)
+      setLoading(false)
       maybeMigrate(newSession)
     })
     return () => listener.subscription.unsubscribe()
   }, [queryClient])
 
-  const signInWithEmail = React.useCallback(async (email: string) => {
+  const signInWithGitHub = React.useCallback(async () => {
     if (!supabase) return { error: "Cloud sync isn't configured yet." }
-    const { error } = await supabase.auth.signInWithOtp({ email })
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: { redirectTo: window.location.origin },
+    })
     return { error: error?.message ?? null }
   }, [])
 
@@ -76,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     session,
     loading,
     cloudEnabled: isCloudConfigured,
-    signInWithEmail,
+    signInWithGitHub,
     signOut,
   }
 

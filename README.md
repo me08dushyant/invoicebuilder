@@ -82,10 +82,12 @@ create policy "own invoices" on invoices for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 ```
 
-4. Restart `npm run dev`. A "Sign in to sync" link will appear in the
-   sidebar; sign-in uses Supabase's email magic link (no password to
-   manage). Once signed in, the app reads/writes Supabase instead of
-   IndexedDB — see `src/data/repository.ts` for the switch logic.
+4. Restart `npm run dev`. A "Sign in" link will appear in the sidebar;
+   sign-in uses GitHub OAuth (Supabase Dashboard → Authentication →
+   Providers → GitHub — needs a GitHub OAuth App's Client ID/Secret, with
+   the callback URL set to `<your-supabase-url>/auth/v1/callback`). Once
+   signed in, the app reads/writes Supabase instead of IndexedDB — see
+   `src/data/repository.ts` for the switch logic.
 
 ## Project structure
 
