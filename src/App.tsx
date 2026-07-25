@@ -1,26 +1,44 @@
+import { lazy, Suspense } from "react"
 import { Routes, Route } from "react-router-dom"
 import { RootLayout } from "@/routes/root-layout"
-import { Landing } from "@/routes/landing"
-import { Invoices } from "@/routes/invoices"
-import { InvoiceEditor } from "@/routes/invoice-editor"
-import { InvoicePreview } from "@/routes/invoice-preview"
-import { Clients } from "@/routes/clients"
-import { BusinessProfile } from "@/routes/business-profile"
-import { Login } from "@/routes/login"
+
+// Route-level code splitting: each route becomes its own chunk, so e.g.
+// the landing page and login don't pull in @react-pdf/renderer, dexie, and
+// supabase-js just to render a couple of buttons — those only load once
+// you actually navigate somewhere that needs them.
+const Landing = lazy(() => import("@/routes/landing").then((m) => ({ default: m.Landing })))
+const Login = lazy(() => import("@/routes/login").then((m) => ({ default: m.Login })))
+const Invoices = lazy(() => import("@/routes/invoices").then((m) => ({ default: m.Invoices })))
+const InvoiceEditor = lazy(() =>
+  import("@/routes/invoice-editor").then((m) => ({ default: m.InvoiceEditor }))
+)
+const InvoicePreview = lazy(() =>
+  import("@/routes/invoice-preview").then((m) => ({ default: m.InvoicePreview }))
+)
+const Clients = lazy(() => import("@/routes/clients").then((m) => ({ default: m.Clients })))
+const BusinessProfile = lazy(() =>
+  import("@/routes/business-profile").then((m) => ({ default: m.BusinessProfile }))
+)
+
+function RouteFallback() {
+  return <p className="p-6 text-muted-foreground">Loading…</p>
+}
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/app" element={<RootLayout />}>
-        <Route index element={<Invoices />} />
-        <Route path="invoices" element={<Invoices />} />
-        <Route path="invoices/:id" element={<InvoiceEditor />} />
-        <Route path="invoices/:id/preview" element={<InvoicePreview />} />
-        <Route path="clients" element={<Clients />} />
-        <Route path="business-profile" element={<BusinessProfile />} />
-      </Route>
-    </Routes>
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/app" element={<RootLayout />}>
+          <Route index element={<Invoices />} />
+          <Route path="invoices" element={<Invoices />} />
+          <Route path="invoices/:id" element={<InvoiceEditor />} />
+          <Route path="invoices/:id/preview" element={<InvoicePreview />} />
+          <Route path="clients" element={<Clients />} />
+          <Route path="business-profile" element={<BusinessProfile />} />
+        </Route>
+      </Routes>
+    </Suspense>
   )
 }

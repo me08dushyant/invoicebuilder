@@ -10,4 +10,11 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    // The @react-pdf/renderer chunk is inherently large (its own PDF
+    // layout/font engine) but route-level code splitting means it's only
+    // fetched when an invoice route is actually visited, not on first
+    // paint — so it doesn't need to warn at the default 500kB threshold.
+    chunkSizeWarningLimit: 1600,
+  },
 })
