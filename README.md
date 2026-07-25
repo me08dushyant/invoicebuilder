@@ -96,7 +96,7 @@ src/
   components/ui/   shadcn primitives (Button, Card, Dialog, Table, ...)
   data/            types.ts, db.ts (Dexie), supabase.ts, repository.ts
   hooks/           use-auth, use-clients, use-invoices (React Query)
-  routes/          Landing, Invoices, InvoiceEditor, InvoicePreview, Clients, BusinessProfile, Login
+  routes/          Landing, Invoices, InvoiceEditor, InvoicePreview, Clients, BusinessProfile
 ```
 
 `repository.ts` is the single place that decides local vs. cloud per call

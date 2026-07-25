@@ -7,7 +7,6 @@ import { RootLayout } from "@/routes/root-layout"
 // supabase-js just to render a couple of buttons — those only load once
 // you actually navigate somewhere that needs them.
 const Landing = lazy(() => import("@/routes/landing").then((m) => ({ default: m.Landing })))
-const Login = lazy(() => import("@/routes/login").then((m) => ({ default: m.Login })))
 const Invoices = lazy(() => import("@/routes/invoices").then((m) => ({ default: m.Invoices })))
 const InvoiceEditor = lazy(() =>
   import("@/routes/invoice-editor").then((m) => ({ default: m.InvoiceEditor }))
@@ -29,7 +28,6 @@ export default function App() {
     <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/app" element={<RootLayout />}>
           <Route index element={<Invoices />} />
           <Route path="invoices" element={<Invoices />} />

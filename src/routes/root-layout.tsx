@@ -1,8 +1,10 @@
+import * as React from "react"
 import { Link, NavLink, Outlet } from "react-router-dom"
 import { Building2, FileText, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
+import { GitHubIcon } from "@/components/github-icon"
 
 const navItems = [
   { to: "/app", label: "Invoices", icon: FileText, end: true },
@@ -11,7 +13,21 @@ const navItems = [
 ]
 
 export function RootLayout() {
-  const { user, cloudEnabled, signOut } = useAuth()
+  const { user, cloudEnabled, signInWithGitHub, signOut } = useAuth()
+  const [redirectingToGithub, setRedirectingToGithub] = React.useState(false)
+  const [githubError, setGithubError] = React.useState<string | null>(null)
+
+  const handleGitHub = async () => {
+    setRedirectingToGithub(true)
+    setGithubError(null)
+    const { error } = await signInWithGitHub()
+    // A success here just means the redirect to GitHub started — the page
+    // is about to navigate away. Only a failure leaves us on this page.
+    if (error) {
+      setGithubError(error)
+      setRedirectingToGithub(false)
+    }
+  }
 
   return (
     <div className="min-h-svh grid grid-cols-[220px_1fr]">
@@ -51,9 +67,19 @@ export function RootLayout() {
               </Button>
             </div>
           ) : cloudEnabled ? (
-            <NavLink to="/login" className="underline hover:text-neutral-100">
-              Sign in
-            </NavLink>
+            <div className="flex flex-col gap-1.5">
+              <Button
+                size="sm"
+                onClick={handleGitHub}
+                disabled={redirectingToGithub}
+                className="border-neutral-700 bg-transparent text-neutral-100 hover:bg-neutral-800 hover:text-white"
+                variant="outline"
+              >
+                <GitHubIcon />
+                {redirectingToGithub ? "Redirecting…" : "Sign in with GitHub"}
+              </Button>
+              {githubError ? <span className="text-destructive">{githubError}</span> : null}
+            </div>
           ) : (
             <span>Guest mode (data stays on this device)</span>
           )}
